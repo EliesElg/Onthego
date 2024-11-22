@@ -1,0 +1,40 @@
+<div class="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
+  <h2 class="text-2xl font-bold mb-6">Créer un Avis</h2>
+  
+  <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2" for="title">Titre</label>
+      <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+             id="title" formControlName="title" type="text" placeholder="Titre de votre avis">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2" for="description">Description</label>
+      <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="description" formControlName="description" placeholder="Description de votre avis"></textarea>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2" for="destination">Destination</label>
+      <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+             id="destination" formControlName="destination" type="text" placeholder="Destination du voyage">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2" for="travel_date">Date de Voyage</label>
+      <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+             id="travel_date" formControlName="travel_date" type="date">
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2" for="itinerary">Itinéraire</label>
+      <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                id="itinerary" formControlName="itinerary" placeholder="Détail de l'itinéraire"></textarea>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      Créer un Avis
+    </button>
+  </form>
+</div>

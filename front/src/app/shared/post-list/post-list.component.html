@@ -1,0 +1,21 @@
+<div class="max-w-3xl mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-4">Liste des Posts</h2>
+    
+    <div *ngIf="posts.length === 0" class="text-center text-gray-500">
+      <p>Aucun post disponible pour le moment.</p>
+    </div>
+    
+    <div *ngFor="let post of posts" class="relative bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">{{ post.title }}</h3>
+      <p class="text-gray-700 mb-2"><strong>Description:</strong> {{ post.description }}</p>
+      <p class="text-gray-700 mb-2"><strong>Destination:</strong> {{ post.destination }}</p>
+      <p class="text-gray-700 mb-2"><strong>Date de voyage:</strong> {{ post.travel_date | date }}</p>
+      <p class="text-gray-700 mb-2"><strong>Itinéraire:</strong> {{ post.itinerary | json }}</p>
+      <p class="text-gray-500 text-sm mb-2"><strong>Créé par:</strong> {{ post.user.username }}</p>
+      <p class="text-gray-500 text-sm"><strong>Créé le:</strong> {{ post.created_at | date:'short' }}</p>
+      
+      <!-- La barre en dessous -->
+      <span class="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600"></span>
+    </div>
+  </div>
+  

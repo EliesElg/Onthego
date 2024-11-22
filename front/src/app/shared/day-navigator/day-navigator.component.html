@@ -1,0 +1,12 @@
+<div *ngIf="currentDay" class="mt-8">
+    <app-day-plan [day]="currentDay"></app-day-plan>
+    <div class="mt-4 flex justify-between">
+      <button (click)="prevDay()" [disabled]="currentIndex === 0" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+        Précédent
+      </button>
+      <button (click)="nextDay()" [disabled]="currentIndex === days.length - 1" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+        Suivant
+      </button>
+    </div>
+  </div>
+  

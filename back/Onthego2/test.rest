@@ -1,0 +1,17 @@
+POST http://127.0.0.1:8000/signup 
+Content-Type: application/json
+
+{ "username": "alosssssssss", "password": "Passs1234!", "email": "alsssssos@mail.com" }
+
+###
+
+POST http://127.0.0.1:8000/login 
+Content-Type: application/json
+
+{ "username": "elies", "password": "Pass1234!" }
+
+###
+
+DELETE http://127.0.0.1:8000/deleteuser
+Content-Type: application/json
+Authorization: Token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk0OTg0MDc3LCJpYXQiOjE2OTQ5ODA0NzcsImp0aSI6IjI2ZDMyN2Y1OTU3ODQzY2JhNTE1NzYyMGZlYjVjYzk4IiwidXNlcl9pZCI6M30.1b_Mi-UZpZhpAvYrxhx3HUKHK4yoCnj7JATWM1MR4Rk

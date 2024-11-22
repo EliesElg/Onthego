@@ -1,0 +1,86 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50">
+  <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center space-y-4 mb-12">
+      <h1 class="text-4xl font-light text-gray-800">
+        OnThe<span class="font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Go</span> Itinéraires
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Consultez vos itinéraires de voyage personnalisés
+      </p>
+    </div>
+
+    <!-- Itineraries Content -->
+    <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden">
+      <div class="p-8">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+          <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+          <p>{{ error }}</p>
+          <button 
+            class="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            (click)="loadItineraries()">
+            Réessayer
+          </button>
+        </div>
+
+        <!-- Itineraries Grid -->
+        <div *ngIf="itineraries.length > 0 && !isLoading" 
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let itinerary of itineraries" 
+               class="group bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+               (click)="viewDetails(itinerary.id)">
+            <!-- Header with gradient -->
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-4">
+              <h3 class="text-lg font-semibold text-white">{{ itinerary.client_name }}</h3>
+              <p class="text-sm text-white/80">{{ itinerary.place }}</p>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-6 space-y-3">
+              <!-- Type de voyage -->
+              <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+                <p class="text-sm text-gray-600">{{ itinerary.trip_type }}</p>
+              </div>
+              
+              <!-- Budget -->
+              <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="text-sm font-medium text-gray-700">{{ itinerary.budget }} €</p>
+              </div>
+
+              <!-- Dates -->
+              <div class="pt-4 border-t border-gray-100">
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <div class="flex items-center space-x-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>{{ itinerary.start_date | date }}</span>
+                  </div>
+                  <span class="text-gray-400">Créé le {{ itinerary.created_at | date:'shortDate' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Details Button -->
+            <div class="px-6 pb-4">
+              <button class="w-full py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                Voir les détails
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
