@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 
 from pathlib import Path
+import dj_database_url
 
 import os
 
@@ -35,11 +36,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'mr7i_og6)qb)%!rro779xl(dpz%*a(*rq%k60w1q5d-(3%=6wn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
 
 
@@ -106,12 +107,8 @@ WSGI_APPLICATION = 'Onthego2.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db' / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
-
 
 
 
@@ -157,7 +154,6 @@ TIME_ZONE = 'Europe/Paris'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
