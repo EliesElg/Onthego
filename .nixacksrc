@@ -1,0 +1,2 @@
+[build]
+install_command = "cd back && pip install -r requirements.txt"
