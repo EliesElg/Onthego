@@ -40,22 +40,35 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "20kb"
                 }
               ],
+              "optimization": {
+                "scripts": true,
+                "styles": true
+              },
+              "sourceMap": false,
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "allowedCommonJsDependencies": [
+                "canvg",
+                "html2canvas",
+                "dompurify",
+                "jspdf",
+                "core-js"
+              ],
+              "serviceWorker": "ngsw-config.json",
+              "extractLicenses": true
             },
             "development": {
               "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "extractLicenses": false
             }
           },
           "defaultConfiguration": "production"
