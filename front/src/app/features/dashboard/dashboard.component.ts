@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface ItineraryStatsResponse {
   itineraries_by_month: { [key: number]: number };
@@ -35,13 +36,14 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     
-    this.authService.getUserItinerariesStats().subscribe({ // Changed from dashboard() to getUserItinerariesStats()
+    this.authService.getUserItinerariesStats().subscribe({
       next: (response: ItineraryStatsResponse) => {
         this.stats = response;
         this.isLoading = false;
       },
-      error: (err) => {
-        this.error = 'Erreur lors du chargement des statistiques';
+      error: (err: HttpErrorResponse) => {
+        // Récupérer le message d'erreur de l'API
+        this.error = err.error?.detail || 'Erreur lors du chargement des statistiques';
         console.error('Erreur:', err);
         this.isLoading = false;
       }
@@ -61,7 +63,6 @@ export class DashboardComponent implements OnInit {
     return this.months[currentMonth];
   }
 
-  // Méthode utilitaire pour formater les nombres
   formatNumber(num: number): string {
     return num.toLocaleString('fr-FR');
   }

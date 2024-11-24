@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -93,8 +93,27 @@ export class AuthService {
     if (!token) {
       return throwError(() => new Error('No token found'));
     }
+
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<ItineraryStatsResponse>(`${this.baseUrl}/dashboard`, { headers });
+
+    return this.http.get<ItineraryStatsResponse>(`${this.baseUrl}/dashboard`, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Gérer les erreurs HTTP
+        if (error.status === 403) {
+          // Erreur 403 (forbidden), probablement un problème de rôle
+          return throwError(() => new Error(error.error?.detail || 'Accès refusé'));
+        } else if (error.status === 401) {
+          // Erreur 401 (unauthorized), token invalide ou expiré
+          return throwError(() => new Error('Authentification requise. Veuillez vous reconnecter.'));
+        } else if (error.status === 0) {
+          // Problème de réseau ou de serveur
+          return throwError(() => new Error('Impossible de se connecter au serveur.'));
+        } else {
+          // Autres erreurs
+          return throwError(() => new Error(error.message || 'Une erreur inconnue s\'est produite.'));
+        }
+      })
+    );
   }
 
   whoami(): Observable<any> {

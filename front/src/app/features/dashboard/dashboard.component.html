@@ -27,7 +27,9 @@
             Réessayer
           </button>
         </div>
-      
+        <div *ngIf="error" class="text-center text-red-500">
+          {{ error }}
+        </div>
         <!-- Data Display -->
         <div *ngIf="stats && !isLoading">
           <!-- Summary Cards -->

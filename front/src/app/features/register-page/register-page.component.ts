@@ -39,7 +39,7 @@ export class RegisterPageComponent {
       console.error('Passwords do not match');
       return;
     }
-    this.authService.register(this.username, this.password, this.email, this.role).subscribe({
+    this.authService.register(this.username, this.password, this.email, this.role = 'pro').subscribe({
       next: (response) => {
         console.log('Registration successful', response);
         this.router.navigate(['/login']); // Redirigez l'utilisateur après une inscription réussie

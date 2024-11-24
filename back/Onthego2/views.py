@@ -24,6 +24,7 @@ from .models import *
 from drf_yasg.utils import swagger_auto_schema
 from .tokens import CustomRefreshToken  # Remplacer l'import RefreshToken par celui-ci
 from django.contrib.auth import get_user_model
+from .permissions import IsPro  # Importer la permission personnalisée
 
 
 def parse_date(date_str):
@@ -360,7 +361,7 @@ def generate_prompt(request):
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPro])  # Ajouter la permission personnalisée ici
 def get_dashboard(request):
     """
     Renvoie le nombre d'itinéraires générés par l'utilisateur connecté pour chaque mois de l'année en cours,
