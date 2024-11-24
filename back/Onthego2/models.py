@@ -1,11 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+
+from django.contrib.auth.models import User
+from django.db import models
+
+class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('pro', 'Professionnel'),
+        ('particulier', 'Particulier'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='particulier')
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
 
 
-    
 class Itinerary(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     client_name = models.CharField(max_length=100)
     place = models.CharField(max_length=100)
     days = models.IntegerField()

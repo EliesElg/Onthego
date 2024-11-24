@@ -18,10 +18,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 from .serializers import *
 from .models import *
 from drf_yasg.utils import swagger_auto_schema
+from .tokens import CustomRefreshToken  # Remplacer l'import RefreshToken par celui-ci
+from django.contrib.auth import get_user_model
+
 
 def parse_date(date_str):
     """
@@ -46,7 +49,7 @@ def login(request):
             content = {'Error': 'No user found'}
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
         if user:
-            refresh = RefreshToken.for_user(user)
+            refresh = CustomRefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             return Response({"access_token": access_token, "user_id": user.id}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -59,7 +62,7 @@ def signup(request):
         user = serializer.save()
 
         # Générer un token JWT pour l'utilisateur
-        refresh = RefreshToken.for_user(user)
+        refresh = CustomRefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
         user_dto = UserDtoSerializer(user)
@@ -76,6 +79,8 @@ def signup(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def deleteuser(request, user_id=None):
+    User = get_user_model()
+
     try:
         # Vérifier si l'utilisateur connecté est admin
         if request.user.is_superuser:
@@ -91,6 +96,7 @@ def deleteuser(request, user_id=None):
                 )
 
         # Supprimer l'utilisateur
+        
         user_to_delete = User.objects.get(id=user_id)
         user_to_delete.delete()
         return Response({"message": "Utilisateur supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
@@ -105,6 +111,8 @@ def deleteuser(request, user_id=None):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def whoami(request):
+    User = get_user_model()
+
     try:
         user_id = request.user.id
         user_info = User.objects.get(id=user_id)
@@ -194,6 +202,8 @@ def change_password(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_users(request):
+    User = get_user_model()
+
     if request.user.is_superuser:
         users = User.objects.all()
 
@@ -456,7 +466,7 @@ def get_itinerary_detail(request, itinerary_id):
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import ChangePasswordSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
