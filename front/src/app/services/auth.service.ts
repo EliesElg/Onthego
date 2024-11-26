@@ -217,6 +217,7 @@ export class AuthService {
       })
     );
   }
+  
 
   changePassword(passwordData: any): Observable<any> {
     const token = localStorage.getItem('authToken');
@@ -231,4 +232,6 @@ export class AuthService {
       })
     );
   }
+  
+  
 }

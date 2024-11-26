@@ -551,3 +551,20 @@ def like_post(request):
         return Response({"error": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from datetime import datetime, timedelta
+from django.db.models import Count
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_daily_itineraries(request):
+    today = datetime.today()
+    start_date = today.replace(day=1)
+    end_date = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+    itineraries = Post.objects.filter(created_at__range=[start_date, end_date])
+    daily_itineraries = itineraries.extra(select={'day': 'date(created_at)'}).values('day').annotate(count=Count('id')).order_by('day')
+
+    data = {day['day'].day: day['count'] for day in daily_itineraries}
+    return Response(data)

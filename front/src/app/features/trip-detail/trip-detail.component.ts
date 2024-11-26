@@ -59,6 +59,7 @@ interface Activity {
 })
 
 export class TripDetailComponent implements OnInit {
+  
   itinerary: ItineraryDetailResponse | null = null;
   isLoading: boolean = false;
   error: string | null = null;

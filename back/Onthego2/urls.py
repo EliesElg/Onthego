@@ -43,6 +43,6 @@ urlpatterns = [
     path('share_itinerary/', views.share_itinerary, name='share_itinerary'),
     path('get_feed/', views.get_feed, name='get_feed'),
     path('like_post/', views.like_post, name='like_post'),
-
+   
 
 ]
