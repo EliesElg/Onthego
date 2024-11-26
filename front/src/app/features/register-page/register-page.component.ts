@@ -27,7 +27,11 @@ export class RegisterPageComponent {
     private authService: AuthService,
     public router: Router
   ) {}
+  selectedType: string = '';
 
+  onSelectType(type: string) {
+    this.selectedType = type;
+  }
   onRegister(event: Event, form: NgForm): void {
     console.log("-------- entrée dans onRegister");
     event.preventDefault(); // Empêche la soumission par défaut du formulaire

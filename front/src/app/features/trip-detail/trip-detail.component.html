@@ -30,7 +30,7 @@
           </div>
           <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow-md p-6">
             <h3 class="text-lg font-semibold text-yellow-600">Date de départ</h3>
-            <p class="text-xl text-gray-800 font-medium mt-2">{{ itinerary.start_date }}</p>
+            <p class="text-xl text-gray-800 font-medium mt-2">{{ formatDate(itinerary.start_date) }}</p>
           </div>
         </div>
 
@@ -42,7 +42,9 @@
                  class="border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
               <!-- Day Header -->
               <div class="flex justify-between items-center p-4 bg-gray-100">
-                <h4 class="text-lg font-semibold text-gray-800">Jour {{ day.day }} - {{ day.date }}</h4>
+                <h4 class="text-lg font-semibold text-gray-800">
+                  Jour {{ day.day }} - {{ formatDate(day.date) }}
+                </h4>                
                 <button 
                   class="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
                   (click)="toggleDay(i)">
@@ -80,7 +82,8 @@
         <!-- Back Button -->
         <div class="text-center">
           <button 
-            class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition-colors">
+            class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition-colors"
+            (click)="goToList()">
             Retour à la liste des itinéraires
           </button>
         </div>
@@ -92,7 +95,6 @@
             Exporter en PDF
           </button>
         </div>
-
       </div>
     </div>
   </div>
