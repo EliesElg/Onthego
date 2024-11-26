@@ -38,8 +38,8 @@ interface Activity {
   selector: 'app-trip-detail',
   standalone: true,
   imports: [CommonModule, FormsModule],  
-  templateUrl: './trip-detail.component.html',
-  styleUrls: ['./trip-detail.component.scss'],
+  templateUrl: './feed-detail.component.html',
+  styleUrls: ['./feed-detail.component.scss'],
   providers: [DatePipe],
   animations: [
     trigger('fadeIn', [
@@ -60,7 +60,7 @@ interface Activity {
   ]
 })
 
-export class TripDetailComponent implements OnInit {
+export class FeedDetailComponent implements OnInit {
   
   itinerary: ItineraryDetailResponse | null = null;
   isLoading: boolean = false;

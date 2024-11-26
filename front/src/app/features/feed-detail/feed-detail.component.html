@@ -34,14 +34,6 @@
           </div>
         </div>
 
-        <!-- Share to Feed Button -->
-        <div *ngIf="userRole === 'particulier'" class="text-center mt-6">
-          <button
-            class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
-            (click)="openShareForm()">
-            Partager sur le fil d'actualité
-          </button>
-        </div>
 
         <!-- Share Form Modal -->
         <div *ngIf="showShareForm" 

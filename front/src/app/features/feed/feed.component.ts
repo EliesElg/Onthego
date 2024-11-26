@@ -70,9 +70,10 @@ export class FeedComponent implements OnInit, OnDestroy {
         }
       });
   }
+  // Dans feed.component.ts, modifiez la méthode openTripDetails:
   openTripDetails(itineraryId: number | undefined): void {
     if (itineraryId) {
-      this.router.navigate(['/itinerary', itineraryId]);
+      this.router.navigate(['/feed-detail', itineraryId]); // Changez le chemin ici
     }
   }
   isLiked(post: Post): boolean {
