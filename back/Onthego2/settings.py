@@ -210,6 +210,8 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

@@ -73,8 +73,6 @@ def signup(request):
 
 
 
-# Suppression du compte : Utilisez uniquement le jeton JWT sans corps de requête pour supprimer votre propre compte en tant qu'utilisateur.
-# Pour les administrateurs souhaitant supprimer un autre utilisateur, utilisez le corps de la requête avec "user_id"
 @swagger_auto_schema(method='delete')
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
@@ -90,14 +88,13 @@ def deleteuser(request, user_id=None):
                 return Response({"message": "user_id manquant dans l'URL"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Un utilisateur non-admin ne peut supprimer que son propre compte
-            if request.user.id != user_id:
+            if request.user.id != int(user_id):
                 return Response(
                     {"message": "Vous ne pouvez supprimer que votre propre compte."},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
         # Supprimer l'utilisateur
-        
         user_to_delete = User.objects.get(id=user_id)
         user_to_delete.delete()
         return Response({"message": "Utilisateur supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)

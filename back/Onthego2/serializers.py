@@ -54,6 +54,7 @@ class PutUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 
+
 class ChangePasswordSerializer(serializers.Serializer):
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
