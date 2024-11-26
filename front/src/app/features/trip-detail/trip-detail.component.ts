@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import jsPDF from 'jspdf';
+import { Router } from '@angular/router';
 
 interface ItineraryDetailResponse {
   id: number;
@@ -34,7 +35,8 @@ interface Activity {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './trip-detail.component.html',
-  styleUrls: ['./trip-detail.component.scss']
+  styleUrls: ['./trip-detail.component.scss'],
+  providers: [DatePipe]
 })
 export class TripDetailComponent implements OnInit {
   itinerary: ItineraryDetailResponse | null = null;
@@ -49,9 +51,19 @@ export class TripDetailComponent implements OnInit {
   private readonly CONTENT_WIDTH = this.PAGE_WIDTH - (2 * this.MARGIN);
 
   constructor(
+    private datePipe: DatePipe,
     private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
+
+  goToList(): void {
+    this.router.navigate(['/trips']);
+  }
+
+  formatDate(date: string | null): string {
+    return date ? this.datePipe.transform(date, 'dd/MM/yyyy') || '' : '';
+  }
 
   ngOnInit(): void {
     const itineraryId = Number(this.route.snapshot.paramMap.get('id'));
@@ -68,6 +80,7 @@ export class TripDetailComponent implements OnInit {
       next: (response) => {
         this.itinerary = response;
         this.isLoading = false;
+        this.initializeSequentialDays();
         this.itinerary.itinerary_days.forEach(day => {
           this.expandedDays[day.day] = false;
         });
@@ -80,8 +93,16 @@ export class TripDetailComponent implements OnInit {
     });
   }
 
-  toggleDay(day: number): void {
-    this.expandedDays[day] = !this.expandedDays[day];
+  initializeSequentialDays(): void {
+    if (this.itinerary?.itinerary_days) {
+      this.itinerary.itinerary_days.forEach((day, index) => {
+        day.day = index + 1;
+      });
+    }
+  }
+
+  toggleDay(dayNumber: number): void {
+    this.expandedDays[dayNumber] = !this.expandedDays[dayNumber];
   }
 
   exportToPDF(): void {
@@ -132,7 +153,7 @@ export class TripDetailComponent implements OnInit {
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
-      pdf.text(`Jour ${day.day} - ${day.date}`, this.MARGIN + 5, yPosition + 7);
+      pdf.text(`Jour ${day.day} - ${this.formatDate(day.date)}`, this.MARGIN + 5, yPosition + 7);
       
       yPosition += 15;
 
