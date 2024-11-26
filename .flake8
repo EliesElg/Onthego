@@ -1,18 +1,17 @@
 [flake8]
 ignore = 
-    # Specific errors you want to ignore
-    E265,   # block comment should start with '# '
-    E301,   # expected 1 blank line, found 0
-    E305,   # expected 2 blank lines after class or function definition
-    E126,   # continuation line over-indented for hanging indent
-    E121,   # continuation line under-indented for hanging indent
-    E306,   # expected 1 blank line before a nested definition
-    E231,   # missing whitespace after ','
-    E251,   # unexpected spaces around keyword / parameter equals
-    F841,   # local variable assigned but never used
-    F403,   # from module import *
-    W503,   # line break before binary operator
-    E203    # whitespace before ':'
+    E265
+    E301
+    E305
+    E126
+    E121
+    E306
+    E231
+    E251
+    F841
+    F403
+    W503
+    E203
 
 # Optional: Set max line length if different from default
 max-line-length = 120
