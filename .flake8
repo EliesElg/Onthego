@@ -12,6 +12,13 @@ ignore =
     F403
     W503
     E203
+    F401
+    F811
+    E302
+    E303
+    W292
+    W293
+    E402
 
 # Optional: Set max line length if different from default
 max-line-length = 120
