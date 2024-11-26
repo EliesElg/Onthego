@@ -19,6 +19,15 @@ ignore =
     W292
     W293
     E402
+    E266
+    E241
+    E122
+    E262
+    E261
+    E131
+    
+    
+    
 
 # Optional: Set max line length if different from default
 max-line-length = 120
