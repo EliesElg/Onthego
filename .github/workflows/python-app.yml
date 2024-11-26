@@ -52,7 +52,7 @@ jobs:
         # Vérifier uniquement les erreurs critiques de syntaxe et noms non définis
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # Continuer avec des avertissements pour des erreurs de complexité ou de style
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --exit-zero
 
 
     - name: Set up database
