@@ -43,9 +43,9 @@ interface ItineraryDetailResponse {
   budget: number;
   start_date: string;
   created_at: string;
+  user_id: number; // Ajoutez cette ligne
   itinerary_days: Day[];
 }
-
 interface Day {
   day: number;
   date: string;

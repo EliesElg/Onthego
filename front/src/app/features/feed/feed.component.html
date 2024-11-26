@@ -20,28 +20,29 @@
       <p>{{ error }}</p>
     </div>
 
-    <!-- Posts List -->
-    <div *ngIf="!loading && !error" class="space-y-6">
-      <div *ngFor="let post of posts" 
-           class="bg-white/80 backdrop-blur-xl rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-xl transition-shadow duration-300">
-        <!-- Post Header -->
-        <div class="p-6 border-b border-gray-100">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
-                <span class="text-white font-medium text-lg">{{ post.user.charAt(0) }}</span>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-800">{{ post.user }}</h3>
-                <p class="text-sm text-gray-500">{{ post.created_at | date:'medium' }}</p>
-              </div>
-            </div>
+<!-- Posts List -->
+<div *ngIf="!loading && !error" class="space-y-6">
+  <div *ngFor="let post of posts" 
+       class="bg-white/80 backdrop-blur-xl rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+       (click)="openTripDetails(post.itinerary.id)">
+    <!-- Post Header -->
+    <div class="p-6 border-b border-gray-100">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+            <span class="text-white font-medium text-lg">{{ post.user.charAt(0) }}</span>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800">{{ post.user }}</h3>
+            <p class="text-sm text-gray-500">{{ post.created_at | date:'medium' }}</p>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Post Content -->
-        <div class="p-6">
-          <p class="text-gray-700 leading-relaxed">{{ post.text }}</p>
+    <!-- Post Content -->
+    <div class="p-6">
+      <p class="text-gray-700 leading-relaxed">{{ post.text }}</p>
 
           <!-- Itinerary Card -->
           <div *ngIf="post.itinerary" 
