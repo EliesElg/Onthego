@@ -16,6 +16,8 @@ interface ItineraryDetailResponse {
   start_date: string;
   created_at: string;
   itinerary_days: Day[];
+  user_id: number; // Ajout de l'ID de l'utilisateur propriétaire
+
 }
 
 interface Day {
@@ -65,6 +67,7 @@ export class TripDetailComponent implements OnInit {
   error: string | null = null;
   expandedDays: { [day: number]: boolean } = {};
   showShareForm: boolean = false;
+  currentUserId: number | null = null;
   shareText: string = '';
   userRole: string | null = null;
   // Constantes pour le PDF
@@ -99,12 +102,14 @@ export class TripDetailComponent implements OnInit {
   checkUserRole(): void {
     this.authService.whoami().subscribe({
       next: (response) => {
-        if (response && response.role) {
+        if (response) {
           this.userRole = response.role;
+          this.currentUserId = response.id; // Stocke l'ID de l'utilisateur connecté
         }
       },
       error: () => {
         this.userRole = null;
+        this.currentUserId = null;
       }
     });
   }
@@ -112,9 +117,10 @@ export class TripDetailComponent implements OnInit {
   loadItineraryDetail(itineraryId: number): void {
     this.isLoading = true;
     this.error = null;
-
+  
     this.authService.getItineraryDetail(itineraryId).subscribe({
       next: (response) => {
+        console.log('Réponse de l\'itinéraire:', response);
         this.itinerary = response;
         this.isLoading = false;
         this.initializeSequentialDays();
@@ -123,9 +129,13 @@ export class TripDetailComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des détails de l\'itinéraire:', err);
-        this.error = 'Erreur lors du chargement des détails de l\'itinéraire';
+        if (err.status === 404) {
+          this.error = 'Cet itinéraire n\'existe pas ou n\'est pas partagé';
+        } else {
+          this.error = 'Erreur lors du chargement des détails de l\'itinéraire';
+        }
         this.isLoading = false;
+        console.error('Erreur:', err);
       }
     });
   }
