@@ -1,12 +1,18 @@
 [flake8]
-# Ignorer certains codes d'erreur
-ignore = F401, F811, E302, W293, W391, E402, E303, E266, E201, W292
+ignore = 
+    # Specific errors you want to ignore
+    E265,   # block comment should start with '# '
+    E301,   # expected 1 blank line, found 0
+    E305,   # expected 2 blank lines after class or function definition
+    E126,   # continuation line over-indented for hanging indent
+    E121,   # continuation line under-indented for hanging indent
+    E306,   # expected 1 blank line before a nested definition
+    E231,   # missing whitespace after ','
+    E251,   # unexpected spaces around keyword / parameter equals
+    F841,   # local variable assigned but never used
+    F403,   # from module import *
+    W503,   # line break before binary operator
+    E203    # whitespace before ':'
 
-# Exclure certains dossiers comme venv et migrations
-exclude = 
-    venv/*,
-    __pycache__/*,
-    migrations/*
-
-# Augmenter la longueur maximale des lignes
-max-line-length = 127
+# Optional: Set max line length if different from default
+max-line-length = 120
