@@ -9,8 +9,19 @@
 
     <!-- Navigation Links -->
     <nav class="hidden md:flex items-center space-x-6">
-      <a *ngIf="isLoggedIn" [routerLink]="['/search']" class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Générer un voyage</a>
-      <a *ngIf="isLoggedIn" [routerLink]="['/dashboard']" class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Dashboard</a>
+      <ng-container *ngIf="isLoggedIn">
+        <a *ngIf="userRole === 'particulier'" 
+           [routerLink]="['/feed']" 
+           class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+          Feed
+        </a>
+        <a *ngIf="userRole === 'pro'" 
+           [routerLink]="['/dashboard']" 
+           class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+          Dashboard
+        </a>
+      </ng-container>     
+      <a *ngIf="isLoggedIn" [routerLink]="['/search']" class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Générer un voyage</a> 
       <a *ngIf="isLoggedIn" [routerLink]="['/trips']" class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Historique des voyages</a>
       <a *ngIf="isLoggedIn" [routerLink]="['/profile']" class="text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Mon Profil</a>
     </nav>
@@ -19,6 +30,7 @@
     <div class="hidden md:flex items-center space-x-4">
       <ng-container *ngIf="isLoggedIn; else notLoggedIn">
         <span class="text-base text-gray-600">Bonjour, {{ username }}</span>
+        
         <button 
           (click)="logout()" 
           class="px-4 py-2 text-base font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg
@@ -52,8 +64,18 @@
   <div *ngIf="isMobileMenuOpen" class="md:hidden">
     <nav class="px-4 pt-2 pb-4 space-y-2">
       <a *ngIf="isLoggedIn" [routerLink]="['/search']" class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Générer un voyage</a>
-      <a *ngIf="isLoggedIn" [routerLink]="['/dashboard']" class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Dashboard</a>
-      <a *ngIf="isLoggedIn" [routerLink]="['/trips']" class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Historique des voyages</a>
+      <ng-container *ngIf="isLoggedIn">
+        <a *ngIf="userRole === 'particulier'" 
+           [routerLink]="['/feed']" 
+           class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+          Feed
+        </a>
+        <a *ngIf="userRole === 'pro'" 
+           [routerLink]="['/dashboard']" 
+           class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+          Dashboard
+        </a>
+      </ng-container>      <a *ngIf="isLoggedIn" [routerLink]="['/trips']" class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Historique des voyages</a>
       <a *ngIf="isLoggedIn" [routerLink]="['/profile']" class="block text-base text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">Mon Profil</a>
       <ng-container *ngIf="isLoggedIn; else mobileNotLoggedIn">
         <button 

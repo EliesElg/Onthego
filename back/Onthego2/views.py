@@ -118,6 +118,8 @@ def whoami(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
 @swagger_auto_schema(method='put', request_body=PutUserSerializer)
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
@@ -486,3 +488,80 @@ def update_user_profile(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def share_itinerary(request):
+    """
+    Endpoint to share an itinerary to the feed.
+    """
+    user = request.user
+    itinerary_id = request.data.get('itinerary_id')
+    text = request.data.get('text', '')
+
+    try:
+        itinerary = Itinerary.objects.get(id=itinerary_id, user=user)
+        post = Post.objects.create(user=user, itinerary=itinerary, text=text)
+        return Response({"message": "Itinerary shared successfully."}, status=status.HTTP_201_CREATED)
+    except Itinerary.DoesNotExist:
+        return Response({"error": "Itinerary not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .models import Post
+from .serializers import PostSerializer
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_feed(request):
+    posts = Post.objects.all().order_by('-created_at')
+    serializer = PostSerializer(posts, many=True, context={'request': request})  # Ajouter le contexte
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication]) 
+@permission_classes([IsAuthenticated])
+def like_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    try:
+        post = Post.objects.get(id=post_id)
+        if user in post.likes.all():
+            post.likes.remove(user)
+            message = "Post unliked."
+        else:
+            post.likes.add(user)
+            message = "Post liked."
+            
+        # Sérialiser le post mis à jour
+        serializer = PostSerializer(post, context={'request': request})
+        return Response({
+            "message": message,
+            "post": serializer.data
+        }, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"error": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from datetime import datetime, timedelta
+from django.db.models import Count
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_daily_itineraries(request):
+    today = datetime.today()
+    start_date = today.replace(day=1)
+    end_date = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+    itineraries = Post.objects.filter(created_at__range=[start_date, end_date])
+    daily_itineraries = itineraries.extra(select={'day': 'date(created_at)'}).values('day').annotate(count=Count('id')).order_by('day')
+
+    data = {day['day'].day: day['count'] for day in daily_itineraries}
+    return Response(data)

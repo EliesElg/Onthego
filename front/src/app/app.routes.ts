@@ -16,6 +16,7 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { TripsComponent } from './features/trips/trips.component';
 import { TripDetailComponent } from './features/trip-detail/trip-detail.component';
 import { ProfilePageComponent } from './features/profile-page/profile-page.component';
+import { FeedComponent } from './features/feed/feed.component';
 
 
 
@@ -33,6 +34,7 @@ export const routes: Routes = [
     { path: 'trips', component:TripsComponent, canActivate: [AuthGuard]},
     { path: 'itinerary/:id', component:TripDetailComponent, canActivate: [AuthGuard] }, // Route pour les détails
     { path: 'profile', component: ProfilePageComponent, canActivate: [AuthGuard],},
+    { path: 'feed', component: FeedComponent, canActivate: [AuthGuard] },
     { path: '**', component: NotFoundComponent},
 
 ];

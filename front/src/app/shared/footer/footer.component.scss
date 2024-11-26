@@ -1,0 +1,31 @@
+footer {
+  background-color: #2d3748; // Gray-800
+  color: #ffffff; // White
+  padding: 1rem 0;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: #63b3ed; // Blue-400
+    }
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
+    }
+  }
+}
