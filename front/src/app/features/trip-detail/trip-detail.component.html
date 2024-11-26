@@ -2,13 +2,13 @@
   <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
     <!-- Loading State -->
     <div *ngIf="isLoading" class="flex items-center justify-center py-12">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+      <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Itinerary Details -->
-    <div *ngIf="itinerary" class="itinerary-container bg-white backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden" style="background-color: rgba(255, 255, 255, 0.9);">
+    <div *ngIf="itinerary" class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] overflow-hidden">
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 to-cyan-500 p-8 text-center text-white rounded-t-3xl">
+      <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-center text-white">
         <h1 class="text-3xl font-bold tracking-wide">Détails de l'itinéraire</h1>
         <p class="text-lg mt-2">Pour <span class="font-semibold">{{ itinerary.client_name }}</span></p>
       </div>
@@ -16,21 +16,97 @@
       <div class="p-8 space-y-8">
         <!-- Info Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-md p-6">
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6 border border-blue-100">
             <h3 class="text-lg font-semibold text-blue-600">Destination</h3>
             <p class="text-xl text-gray-800 font-medium mt-2">{{ itinerary.place }}</p>
           </div>
-          <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-cyan-600">Type de voyage</h3>
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6 border border-blue-100">
+            <h3 class="text-lg font-semibold text-blue-600">Type de voyage</h3>
             <p class="text-xl text-gray-800 font-medium mt-2">{{ itinerary.trip_type }}</p>
           </div>
-          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-emerald-600">Budget</h3>
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6 border border-blue-100">
+            <h3 class="text-lg font-semibold text-blue-600">Budget</h3>
             <p class="text-xl text-gray-800 font-medium mt-2">{{ itinerary.budget }}€</p>
           </div>
-          <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow-md p-6">
-            <h3 class="text-lg font-semibold text-yellow-600">Date de départ</h3>
-            <p class="text-xl text-gray-800 font-medium mt-2">{{ itinerary.start_date }}</p>
+          <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6 border border-blue-100">
+            <h3 class="text-lg font-semibold text-blue-600">Date de départ</h3>
+            <p class="text-xl text-gray-800 font-medium mt-2">{{ formatDate(itinerary.start_date) }}</p>
+          </div>
+        </div>
+
+        <!-- Share to Feed Button -->
+        <div class="text-center mt-6">
+          <button
+            class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+            (click)="openShareForm()">
+            Partager sur le fil d'actualité
+          </button>
+        </div>
+
+        <!-- Share Form Modal -->
+        <div *ngIf="showShareForm" 
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm transition-opacity"
+             @fadeIn>
+          <div class="bg-white/95 backdrop-blur-xl w-11/12 md:w-2/3 lg:w-1/2 max-w-2xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] p-6 transform transition-all"
+               @slideIn>
+            <!-- Modal Header -->
+            <div class="mb-6 flex items-center justify-between">
+              <h2 class="text-2xl font-light text-gray-800">
+                Partager votre <span class="font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Itinéraire</span>
+              </h2>
+              <button 
+                (click)="closeShareForm()"
+                class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+        
+            <!-- Form Content -->
+            <form (submit)="shareItinerary($event)" class="space-y-6">
+              <!-- Destination Preview -->
+              <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 flex items-center space-x-4">
+                <div class="h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Destination</p>
+                  <p class="font-medium text-gray-800">{{ itinerary.place }}</p>
+                </div>
+              </div>
+        
+              <!-- Message Input -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Votre message</label>
+                <textarea
+                  [(ngModel)]="shareText"
+                  name="shareText"
+                  rows="4"
+                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                  placeholder="Partagez votre expérience avec la communauté..."></textarea>
+              </div>
+        
+              <!-- Action Buttons -->
+              <div class="flex justify-end space-x-3">
+                <button 
+                  type="button" 
+                  (click)="closeShareForm()"
+                  class="px-6 py-3 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                  Annuler
+                </button>
+                <button 
+                  type="submit"
+                  class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:opacity-90 transition-opacity flex items-center space-x-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                  </svg>
+                  <span>Partager</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -41,10 +117,12 @@
             <div *ngFor="let day of itinerary.itinerary_days; let i = index" 
                  class="border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
               <!-- Day Header -->
-              <div class="flex justify-between items-center p-4 bg-gray-100">
-                <h4 class="text-lg font-semibold text-gray-800">Jour {{ day.day }} - {{ day.date }}</h4>
+              <div class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-cyan-50">
+                <h4 class="text-lg font-semibold text-gray-800">
+                  Jour {{ day.day }} - {{ formatDate(day.date) }}
+                </h4>                
                 <button 
-                  class="p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                  class="p-2 hover:bg-white/50 rounded-full transition-colors"
                   (click)="toggleDay(i)">
                   <svg xmlns="http://www.w3.org/2000/svg" 
                        class="w-5 h-5 text-blue-600 transition-transform"
@@ -69,7 +147,7 @@
                   </div>
                   <div class="text-right">
                     <p class="text-sm font-semibold text-gray-800">{{ activity.horaires }}</p>
-                    <p class="text-sm text-blue-500">{{ activity.budget }} €</p>
+                    <p class="text-sm text-blue-600">{{ activity.budget }} €</p>
                   </div>
                 </div>
               </div>
@@ -77,22 +155,19 @@
           </div>
         </div>
 
-        <!-- Back Button -->
-        <div class="text-center">
+        <!-- Navigation Buttons -->
+        <div class="flex justify-center gap-4">
           <button 
-            class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 transition-colors">
+            class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
+            (click)="goToList()">
             Retour à la liste des itinéraires
           </button>
-        </div>
-        <!-- Export Button -->
-        <div class="text-center mt-6">
           <button 
-            class="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 transition-colors"
+            class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity"
             (click)="exportToPDF()">
             Exporter en PDF
           </button>
         </div>
-
       </div>
     </div>
   </div>

@@ -19,6 +19,7 @@ export class RegisterPageComponent {
   username: string = '';
   email: string = '';
   password: string = '';
+  role: string = '';
   passwordConfirmation: string = '';
   RegisterSuccess: boolean = false;
 
@@ -26,7 +27,11 @@ export class RegisterPageComponent {
     private authService: AuthService,
     public router: Router
   ) {}
+  selectedType: string = '';
 
+  onSelectType(type: string) {
+    this.selectedType = type;
+  }
   onRegister(event: Event, form: NgForm): void {
     console.log("-------- entrée dans onRegister");
     event.preventDefault(); // Empêche la soumission par défaut du formulaire
@@ -38,7 +43,7 @@ export class RegisterPageComponent {
       console.error('Passwords do not match');
       return;
     }
-    this.authService.register(this.username, this.password, this.email).subscribe({
+    this.authService.register(this.username, this.password, this.email, this.role ).subscribe({
       next: (response) => {
         console.log('Registration successful', response);
         this.router.navigate(['/login']); // Redirigez l'utilisateur après une inscription réussie

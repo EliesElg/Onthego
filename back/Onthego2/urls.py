@@ -1,10 +1,11 @@
 
-from django.urls import path
+from django.urls import path,re_path
 from . import views
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework import permissions
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -16,16 +17,19 @@ schema_view = get_schema_view(
       license=openapi.License(name="BSD License"),
    ),
    public=True,
-   permission_classes=(AllowAny,),
+   permission_classes=(permissions.AllowAny,),
+   authentication_classes=[]  # Ajoutez ceci
 )
 
 urlpatterns = [
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('login', views.login, name='login'),
-    path('signup', views.signup),
+    path('signup', views.signup, name='signup'),
     path('deleteuser/<int:user_id>/', views.deleteuser, name='deleteuser'),
     path('whoami', views.whoami),
-    path('userupdate', views.user_update),
+    path('userupdate', views.user_update, name = 'user_update'),
     path('get_users/', views.get_users),
     path('generate_prompt', views.generate_prompt, name='generate_prompt'),
     path('dashboard/', views.get_dashboard, name='get_dashboard'),
@@ -36,6 +40,9 @@ urlpatterns = [
     path('profile/', views.get_user_profile, name='get_user_profile'),
     path('profile/update/', views.update_user_profile, name='update_user_profile'),
     path('profile/change-password/', views.change_password, name='change_password'),
-
+    path('share_itinerary/', views.share_itinerary, name='share_itinerary'),
+    path('get_feed/', views.get_feed, name='get_feed'),
+    path('like_post/', views.like_post, name='like_post'),
+   
 
 ]

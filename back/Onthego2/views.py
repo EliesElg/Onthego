@@ -18,10 +18,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken
 from .serializers import *
 from .models import *
 from drf_yasg.utils import swagger_auto_schema
+from .tokens import CustomRefreshToken  # Remplacer l'import RefreshToken par celui-ci
+from django.contrib.auth import get_user_model
+from .permissions import IsPro  # Importer la permission personnalisée
+
 
 def parse_date(date_str):
     """
@@ -46,7 +50,7 @@ def login(request):
             content = {'Error': 'No user found'}
             return Response(content, status=status.HTTP_401_UNAUTHORIZED)
         if user:
-            refresh = RefreshToken.for_user(user)
+            refresh = CustomRefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             return Response({"access_token": access_token, "user_id": user.id}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -59,7 +63,7 @@ def signup(request):
         user = serializer.save()
 
         # Générer un token JWT pour l'utilisateur
-        refresh = RefreshToken.for_user(user)
+        refresh = CustomRefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
         user_dto = UserDtoSerializer(user)
@@ -69,13 +73,13 @@ def signup(request):
 
 
 
-# Suppression du compte : Utilisez uniquement le jeton JWT sans corps de requête pour supprimer votre propre compte en tant qu'utilisateur.
-# Pour les administrateurs souhaitant supprimer un autre utilisateur, utilisez le corps de la requête avec "user_id"
 @swagger_auto_schema(method='delete')
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def deleteuser(request, user_id=None):
+    User = get_user_model()
+
     try:
         # Vérifier si l'utilisateur connecté est admin
         if request.user.is_superuser:
@@ -84,7 +88,7 @@ def deleteuser(request, user_id=None):
                 return Response({"message": "user_id manquant dans l'URL"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Un utilisateur non-admin ne peut supprimer que son propre compte
-            if request.user.id != user_id:
+            if request.user.id != int(user_id):
                 return Response(
                     {"message": "Vous ne pouvez supprimer que votre propre compte."},
                     status=status.HTTP_403_FORBIDDEN
@@ -106,14 +110,15 @@ def deleteuser(request, user_id=None):
 @permission_classes([IsAuthenticated])
 def whoami(request):
     try:
-        user_id = request.user.id
-        user_info = User.objects.get(id=user_id)
-        user_dto = UserDtoSerializer(user_info)
-        return Response({"user": user_dto.data})
-    except User.DoesNotExist:
-        return Response({"error": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+        user = request.user
+        serializer = TokenSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "Profil utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @swagger_auto_schema(method='put', request_body=PutUserSerializer)
 @api_view(['PUT'])
@@ -194,6 +199,8 @@ def change_password(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_users(request):
+    User = get_user_model()
+
     if request.user.is_superuser:
         users = User.objects.all()
 
@@ -350,7 +357,7 @@ def generate_prompt(request):
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsPro])  # Ajouter la permission personnalisée ici
 def get_dashboard(request):
     """
     Renvoie le nombre d'itinéraires générés par l'utilisateur connecté pour chaque mois de l'année en cours,
@@ -456,7 +463,7 @@ def get_itinerary_detail(request, itinerary_id):
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, ChangePasswordSerializer
+from .serializers import ChangePasswordSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -481,3 +488,80 @@ def update_user_profile(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def share_itinerary(request):
+    """
+    Endpoint to share an itinerary to the feed.
+    """
+    user = request.user
+    itinerary_id = request.data.get('itinerary_id')
+    text = request.data.get('text', '')
+
+    try:
+        itinerary = Itinerary.objects.get(id=itinerary_id, user=user)
+        post = Post.objects.create(user=user, itinerary=itinerary, text=text)
+        return Response({"message": "Itinerary shared successfully."}, status=status.HTTP_201_CREATED)
+    except Itinerary.DoesNotExist:
+        return Response({"error": "Itinerary not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .models import Post
+from .serializers import PostSerializer
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_feed(request):
+    posts = Post.objects.all().order_by('-created_at')
+    serializer = PostSerializer(posts, many=True, context={'request': request})  # Ajouter le contexte
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication]) 
+@permission_classes([IsAuthenticated])
+def like_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    try:
+        post = Post.objects.get(id=post_id)
+        if user in post.likes.all():
+            post.likes.remove(user)
+            message = "Post unliked."
+        else:
+            post.likes.add(user)
+            message = "Post liked."
+            
+        # Sérialiser le post mis à jour
+        serializer = PostSerializer(post, context={'request': request})
+        return Response({
+            "message": message,
+            "post": serializer.data
+        }, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"error": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+from datetime import datetime, timedelta
+from django.db.models import Count
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_daily_itineraries(request):
+    today = datetime.today()
+    start_date = today.replace(day=1)
+    end_date = (start_date + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+    itineraries = Post.objects.filter(created_at__range=[start_date, end_date])
+    daily_itineraries = itineraries.extra(select={'day': 'date(created_at)'}).values('day').annotate(count=Count('id')).order_by('day')
+
+    data = {day['day'].day: day['count'] for day in daily_itineraries}
+    return Response(data)

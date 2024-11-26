@@ -1,29 +1,39 @@
-from rest_framework import serializers
 from django.contrib.auth.models import User
-
+from rest_framework import serializers
+from .models import UserProfile  # Assurez-vous d'importer le modèle UserProfile
 from django.contrib.auth.password_validation import validate_password
+from .models import Post
 from rest_framework import serializers
-from django.contrib.auth.models import User
-
+from .models import Itinerary
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
+    role = serializers.ChoiceField(choices=UserProfile.ROLE_CHOICES, write_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email']
+        fields = ['id', 'username', 'password', 'email', 'role']  # Ajout du champ `role`
+        extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value):
         if value:
             validate_password(value)
         return value
-
+#test
     def create(self, validated_data):
+        # Extraire le champ `role` des données validées
+        role = validated_data.pop('role')
+        
+        # Créer l'utilisateur
         user = User.objects.create_user(
             username=validated_data['username'],
+            email=validated_data['email'],
             password=validated_data['password'],
-            email=validated_data['email']
         )
+
+        # Créer le profil utilisateur avec le rôle
+        UserProfile.objects.create(user=user, role=role)
+
         return user
 
     def update(self, instance, validated_data):
@@ -33,6 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(validated_data['password'])
         instance.save()
         return instance
+
     
 
 class LoginSerializer(serializers.Serializer):
@@ -44,6 +55,23 @@ class PutUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
+
+class TokenSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(max_length=20, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role']  # Ajoutez le champ role
+
+    def to_representation(self, instance):
+        """
+        Surcharge de la méthode pour inclure le rôle de l'utilisateur.
+        """
+        representation = super().to_representation(instance)
+        # Accéder au rôle à partir du profil utilisateur
+        representation['role'] = instance.profile.role
+        return representation
+
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -75,7 +103,21 @@ class UserDtoSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
     email = serializers.EmailField()
 
+class TokenSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(max_length=20, read_only=True)
 
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role']  # Ajoutez le champ `role`
+
+    def to_representation(self, instance):
+        """
+        Surcharge de la méthode pour inclure le rôle de l'utilisateur.
+        """
+        representation = super().to_representation(instance)
+        # Accéder au rôle à partir du profil utilisateur
+        representation['role'] = instance.profile.role
+        return representation
 from rest_framework import serializers
 
 class GeneratePromptSerializer(serializers.Serializer):
@@ -108,12 +150,16 @@ class ItinerarySerializer(serializers.ModelSerializer):
         model = Itinerary
         fields = ['id', 'client_name', 'place', 'trip_type', 'budget', 'start_date', 'created_at', 'itinerary_days']
 
-from rest_framework import serializers
-from .models import Itinerary
-
 class ItineraryBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Itinerary
         fields = ['id', 'client_name', 'place', 'trip_type', 'budget', 'start_date', 'created_at']
 
+class PostSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    itinerary = ItinerarySerializer()  # Assuming you have an `ItinerarySerializer`
+
+    class Meta:
+        model = Post
+        fields = ['id', 'user', 'itinerary', 'text', 'created_at', 'likes']
 
