@@ -112,15 +112,12 @@ def deleteuser(request, user_id=None):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def whoami(request):
-    User = get_user_model()
-
     try:
-        user_id = request.user.id
-        user_info = User.objects.get(id=user_id)
-        user_dto = UserDtoSerializer(user_info)
-        return Response({"user": user_dto.data})
-    except User.DoesNotExist:
-        return Response({"error": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+        user = request.user
+        serializer = TokenSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "Profil utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

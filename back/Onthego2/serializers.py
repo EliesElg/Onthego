@@ -83,7 +83,21 @@ class UserDtoSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100)
     email = serializers.EmailField()
 
+class TokenSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(max_length=20, read_only=True)
 
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role']  # Ajoutez le champ `role`
+
+    def to_representation(self, instance):
+        """
+        Surcharge de la méthode pour inclure le rôle de l'utilisateur.
+        """
+        representation = super().to_representation(instance)
+        # Accéder au rôle à partir du profil utilisateur
+        representation['role'] = instance.profile.role
+        return representation
 from rest_framework import serializers
 
 class GeneratePromptSerializer(serializers.Serializer):
