@@ -54,7 +54,7 @@ jobs:
         # Continuer avec des avertissements pour des erreurs de complexité ou de style
         flake8 . --exit-zero
 
-      - name: Set up database
+    - name: Set up database
       env:
         DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/testdb
       run: |
