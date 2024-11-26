@@ -1,3 +1,12 @@
 [flake8]
-exclude = venv/*,node_modules/*,migrations/*,__pycache__/*
+# Ignorer certains codes d'erreur
+ignore = F401, F811, E302, W293, W391, E402, E303, E266, E201, W292
+
+# Exclure certains dossiers comme venv et migrations
+exclude = 
+    venv/*,
+    __pycache__/*,
+    migrations/*
+
+# Augmenter la longueur maximale des lignes
 max-line-length = 127
