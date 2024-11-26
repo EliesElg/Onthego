@@ -54,14 +54,13 @@ jobs:
         # Continuer avec des avertissements pour des erreurs de complexité ou de style
         flake8 . --exit-zero
 
-
-
     - name: Set up database
       env:
         DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/testdb
       run: |
         sudo apt-get update
         sudo apt-get install libpq-dev
+        cd back/Onthego2  # Naviguer dans le bon répertoire
         python manage.py makemigrations
         python manage.py migrate
 
@@ -69,4 +68,5 @@ jobs:
       env:
         DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/testdb
       run: |
+        cd back/Onthego2  # Naviguer dans le bon répertoire
         python manage.py test
