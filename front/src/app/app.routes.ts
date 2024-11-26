@@ -33,7 +33,7 @@ export const routes: Routes = [
     { path: 'dashboard', component:DashboardComponent, canActivate: [AuthGuard]},
     { path: 'trips', component:TripsComponent, canActivate: [AuthGuard]},
     { path: 'itinerary/:id', component:TripDetailComponent, canActivate: [AuthGuard] }, // Route pour les détails
-    { path: 'profile', component: ProfilePageComponent, canActivate: [AuthGuard],},
+    { path: 'profile', component: ProfilePageComponent, canActivate: [AuthGuard]},
     { path: 'feed', component: FeedComponent, canActivate: [AuthGuard] },
     { path: '**', component: NotFoundComponent},
 

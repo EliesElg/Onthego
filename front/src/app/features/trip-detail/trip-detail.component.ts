@@ -66,7 +66,7 @@ export class TripDetailComponent implements OnInit {
   expandedDays: { [day: number]: boolean } = {};
   showShareForm: boolean = false;
   shareText: string = '';
-
+  userRole: string | null = null;
   // Constantes pour le PDF
   private readonly PAGE_WIDTH = 210;  // A4 width in mm
   private readonly PAGE_HEIGHT = 297; // A4 height in mm
@@ -93,6 +93,20 @@ export class TripDetailComponent implements OnInit {
     if (itineraryId) {
       this.loadItineraryDetail(itineraryId);
     }
+    this.checkUserRole();
+  }
+
+  checkUserRole(): void {
+    this.authService.whoami().subscribe({
+      next: (response) => {
+        if (response && response.role) {
+          this.userRole = response.role;
+        }
+      },
+      error: () => {
+        this.userRole = null;
+      }
+    });
   }
 
   loadItineraryDetail(itineraryId: number): void {
