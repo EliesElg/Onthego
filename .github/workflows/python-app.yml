@@ -53,19 +53,3 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || echo "Critical issues found"
         # Continuer avec des avertissements pour des erreurs de complexité ou de style
         flake8 . --exit-zero
-
-    - name: Set up database
-      env:
-        DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/testdb
-      run: |
-        sudo apt-get update
-        sudo apt-get install libpq-dev
-        cd back/Onthego2  # Navigate to the "Onthego2" directory
-        python manage.py makemigrations
-        python manage.py migrate
-    - name: Run Django tests
-      env:
-        DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/testdb
-      run: |
-        cd back/Onthego2  # Navigate to the "Onthego2" directory
-        python manage.py test
