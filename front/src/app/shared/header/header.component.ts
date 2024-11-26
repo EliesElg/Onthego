@@ -15,6 +15,8 @@ export class HeaderComponent implements OnInit {
   isLoggedIn = false;
   username: string | null = null;
   isMobileMenuOpen = false;
+  userRole: string | null = null; // Nouvelle propriété
+
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -22,24 +24,26 @@ export class HeaderComponent implements OnInit {
     this.checkLoginStatus();
   }
 
+
   checkLoginStatus(): void {
     const token = localStorage.getItem('authToken');
     if (token) {
-      this.authService.getUserProfile().subscribe({
+      this.authService.whoami().subscribe({
         next: (response) => {
           if (response && response.username) {
             this.isLoggedIn = true;
             this.username = response.username;
+            this.userRole = response.role; // Récupération du rôle
+            console.log('User Role:', this.userRole); // Console Log
+
           }
         },
         error: () => {
           this.isLoggedIn = false;
           this.username = '';
+          this.userRole = null;
         }
       });
-    } else {
-      this.isLoggedIn = false;
-      this.username = '';
     }
   }
 

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Post } from '../models/post.interface';
 
 interface AuthResponse {
   access_token: string;
@@ -16,8 +17,6 @@ interface GeneratePromptResponse {
   message?: string;
   itinerary_id?: number;
 }
-
-
 
 interface ItineraryStatsResponse {
   itineraries_by_month: { [key: number]: number };
@@ -124,6 +123,37 @@ export class AuthService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<any>(`${this.baseUrl}/whoami`, { headers });
   }
+
+  shareItinerary(postData: { itinerary_id: number; text: string }): Observable<Post> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      return throwError(() => new Error('Aucun token trouvé'));
+    }
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post<Post>(`${this.baseUrl}/share_itinerary/`, postData, { headers });
+  }
+
+  getFeed(): Observable<Post[]> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      return throwError(() => new Error('Aucun token trouvé'));
+    }
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get<Post[]>(`${this.baseUrl}/get_feed/`, { headers });
+  }
+  likePost(postId: number): Observable<{message: string, post: Post}> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      return throwError(() => new Error('Aucun token trouvé'));
+    }
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post<{message: string, post: Post}>(
+      `${this.baseUrl}/like_post/`, 
+      { post_id: postId }, 
+      { headers }
+    );
+  }
+
 
   isLoggedIn(): Observable<boolean> {
     return this.whoami().pipe(

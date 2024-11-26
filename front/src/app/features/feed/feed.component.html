@@ -1,0 +1,90 @@
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50">
+  <div class="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center space-y-4 mb-12">
+      <h1 class="text-4xl font-light text-gray-800">
+        Fil d'<span class="font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Actualités</span>
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Découvrez les voyages partagés par la communauté
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex items-center justify-center py-12">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-4">
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- Posts List -->
+    <div *ngIf="!loading && !error" class="space-y-6">
+      <div *ngFor="let post of posts" 
+           class="bg-white/80 backdrop-blur-xl rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-xl transition-shadow duration-300">
+        <!-- Post Header -->
+        <div class="p-6 border-b border-gray-100">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+                <span class="text-white font-medium text-lg">{{ post.user.charAt(0) }}</span>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-800">{{ post.user }}</h3>
+                <p class="text-sm text-gray-500">{{ post.created_at | date:'medium' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post Content -->
+        <div class="p-6">
+          <p class="text-gray-700 leading-relaxed">{{ post.text }}</p>
+
+          <!-- Itinerary Card -->
+          <div *ngIf="post.itinerary" 
+               class="mt-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100">
+            <div class="flex items-center mb-4">
+              <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+              </svg>
+              <h4 class="font-semibold text-gray-800">Détails de l'itinéraire</h4>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div class="bg-white rounded-lg p-3 shadow-sm">
+                <p class="text-gray-500">Destination</p>
+                <p class="font-medium text-gray-800">{{ post.itinerary.place }}</p>
+              </div>
+              <div class="bg-white rounded-lg p-3 shadow-sm">
+                <p class="text-gray-500">Type</p>
+                <p class="font-medium text-gray-800">{{ post.itinerary.trip_type }}</p>
+              </div>
+              <div class="bg-white rounded-lg p-3 shadow-sm">
+                <p class="text-gray-500">Budget</p>
+                <p class="font-medium text-gray-800">{{ post.itinerary.budget }}€</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Like Button -->
+          <div class="mt-6 flex items-center">
+            <button 
+              (click)="likePost(post.id)"
+              class="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200"
+              [ngClass]="isLiked(post) ? 
+                'bg-gradient-to-r from-blue-600 to-cyan-600 text-white' : 
+                'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+              </svg>
+              <span>{{ isLiked(post) ? 'Je n\'aime plus' : 'J\'aime' }}</span>
+              <span class="bg-white/20 px-2 py-1 rounded-full text-sm">{{ post.likes.length }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

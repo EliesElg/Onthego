@@ -112,17 +112,16 @@ def deleteuser(request, user_id=None):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def whoami(request):
-    User = get_user_model()
-
     try:
-        user_id = request.user.id
-        user_info = User.objects.get(id=user_id)
-        user_dto = UserDtoSerializer(user_info)
-        return Response({"user": user_dto.data})
-    except User.DoesNotExist:
-        return Response({"error": "Utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
+        user = request.user
+        serializer = TokenSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "Profil utilisateur non trouvé."}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @swagger_auto_schema(method='put', request_body=PutUserSerializer)
 @api_view(['PUT'])
@@ -492,3 +491,63 @@ def update_user_profile(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def share_itinerary(request):
+    """
+    Endpoint to share an itinerary to the feed.
+    """
+    user = request.user
+    itinerary_id = request.data.get('itinerary_id')
+    text = request.data.get('text', '')
+
+    try:
+        itinerary = Itinerary.objects.get(id=itinerary_id, user=user)
+        post = Post.objects.create(user=user, itinerary=itinerary, text=text)
+        return Response({"message": "Itinerary shared successfully."}, status=status.HTTP_201_CREATED)
+    except Itinerary.DoesNotExist:
+        return Response({"error": "Itinerary not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .models import Post
+from .serializers import PostSerializer
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_feed(request):
+    posts = Post.objects.all().order_by('-created_at')
+    serializer = PostSerializer(posts, many=True, context={'request': request})  # Ajouter le contexte
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication]) 
+@permission_classes([IsAuthenticated])
+def like_post(request):
+    user = request.user
+    post_id = request.data.get('post_id')
+
+    try:
+        post = Post.objects.get(id=post_id)
+        if user in post.likes.all():
+            post.likes.remove(user)
+            message = "Post unliked."
+        else:
+            post.likes.add(user)
+            message = "Post liked."
+            
+        # Sérialiser le post mis à jour
+        serializer = PostSerializer(post, context={'request': request})
+        return Response({
+            "message": message,
+            "post": serializer.data
+        }, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"error": "Post not found."}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

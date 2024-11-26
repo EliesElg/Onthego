@@ -40,6 +40,9 @@ urlpatterns = [
     path('profile/', views.get_user_profile, name='get_user_profile'),
     path('profile/update/', views.update_user_profile, name='update_user_profile'),
     path('profile/change-password/', views.change_password, name='change_password'),
+    path('share_itinerary/', views.share_itinerary, name='share_itinerary'),
+    path('get_feed/', views.get_feed, name='get_feed'),
+    path('like_post/', views.like_post, name='like_post'),
 
 
 ]

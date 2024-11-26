@@ -4,6 +4,8 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import jsPDF from 'jspdf';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 interface ItineraryDetailResponse {
   id: number;
@@ -33,16 +35,36 @@ interface Activity {
 @Component({
   selector: 'app-trip-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],  
   templateUrl: './trip-detail.component.html',
   styleUrls: ['./trip-detail.component.scss'],
-  providers: [DatePipe]
+  providers: [DatePipe],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('150ms ease-out', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ opacity: 0 }))
+      ])
+    ]),
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ transform: 'translateY(20px)', opacity: 0 }),
+        animate('300ms ease-out', style({ transform: 'translateY(0)', opacity: 1 }))
+      ])
+    ])
+  ]
 })
+
 export class TripDetailComponent implements OnInit {
   itinerary: ItineraryDetailResponse | null = null;
   isLoading: boolean = false;
   error: string | null = null;
   expandedDays: { [day: number]: boolean } = {};
+  showShareForm: boolean = false;
+  shareText: string = '';
 
   // Constantes pour le PDF
   private readonly PAGE_WIDTH = 210;  // A4 width in mm
@@ -104,7 +126,39 @@ export class TripDetailComponent implements OnInit {
   toggleDay(dayNumber: number): void {
     this.expandedDays[dayNumber] = !this.expandedDays[dayNumber];
   }
-
+    // Open the share form modal
+    openShareForm(): void {
+      this.showShareForm = true;
+    }
+  
+    // Close the share form modal
+    closeShareForm(): void {
+      this.showShareForm = false;
+      this.shareText = '';
+    }
+  
+    // Handle form submission
+    shareItinerary(event: Event): void {
+      event.preventDefault();
+      if (!this.itinerary) return;
+  
+      const postData = {
+        itinerary_id: this.itinerary.id,
+        text: this.shareText
+      };
+  
+      this.authService.shareItinerary(postData).subscribe({
+        next: (response) => {
+          this.closeShareForm();
+          alert('Votre itinéraire a été partagé sur le fil d\'actualité.');
+        },
+        error: (error) => {
+          console.error('Erreur lors du partage de l\'itinéraire:', error);
+          alert('Une erreur est survenue lors du partage de votre itinéraire.');
+        }
+      });
+    }
+  
   exportToPDF(): void {
     if (!this.itinerary) return;
 
