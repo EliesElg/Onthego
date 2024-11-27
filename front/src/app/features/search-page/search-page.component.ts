@@ -18,6 +18,7 @@ interface GeneratePromptResponse {
   styleUrls: ['./search-page.component.scss']
 })
 export class SearchPageComponent {
+
   ville: string = '';
   days: number = 1;
   tripType: string = '';
@@ -31,10 +32,20 @@ export class SearchPageComponent {
   isLoading: boolean = false;
   showResults: boolean = false;
   comments: string = '';
-  
-  // Propriété pour suivre l'état d'expansion des jours
+    private dangerousCountries = [
+    'Ukraine',
+    'Syrie',
+    'Yemen',
+    'Libye',
+    'Soudan',
+  ];
   expandedDays: boolean[] = [];
-
+  public showDangerAlert = false;
+  
+  checkDestinationSafety(destination: string) {
+    this.showDangerAlert = this.dangerousCountries
+      .some(country => destination.toLowerCase().includes(country.toLowerCase()));
+  }
   constructor(private authService: AuthService) {}
 
   toggleDiv(): void {

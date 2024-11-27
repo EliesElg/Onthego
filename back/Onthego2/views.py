@@ -65,7 +65,6 @@ def signup(request):
         # Générer un token JWT pour l'utilisateur
         refresh = CustomRefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-
         user_dto = UserDtoSerializer(user)
         return Response({"access_token": access_token, "user": user_dto.data}, status=status.HTTP_201_CREATED)
     
