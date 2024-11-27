@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://127.0.0.1:8000/' // Inclure "https://"
+  apiBaseUrl: 'https://onthego-production.up.railway.app' // Inclure "https://"
 };
