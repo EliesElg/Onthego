@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         if value:
             validate_password(value)
         return value
-
+#test
     def create(self, validated_data):
         # Extraire le champ `role` des données validées
         role = validated_data.pop('role')
