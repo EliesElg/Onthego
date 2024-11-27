@@ -244,11 +244,19 @@ def generate_prompt(request):
             trip_type = request.data.get('trip_type')
             start_date = request.data.get('start_date')
             budget = request.data.get('budget')
+            age = request.data.get('age')
+            comments = request.data.get('comments')
+
+            if comments == None:
+                comments = ''
+            else:
+                comments = ", respecte strictement egalement ces demandes la pour le voyage" + comments
+
 
             # Préparer le prompt pour GPT
             content = f"""
-            Sur la base de ce format précis, générez un plan pour un séjour {trip_type} de {days} jours à {place} à partir du {start_date} avec un budget de {budget} euros.
-            La journée doit être conséquente avec des activités du matin au soir, et les activités doivent être géographiquement et météorologiquement cohérentes.
+            Sur la base de ce format précis, générez un plan pour un séjour {trip_type} de {days} jours à {place} à partir du {start_date} avec un budget de {budget} euros pour une personne de {age} ans.
+            La journée doit être conséquente avec des activités du matin au soir, adapté a son age et les activités doivent être géographiquement et météorologiquement cohérentes {comments}.
             Répondez uniquement avec un JSON structuré.
             """
 
@@ -400,28 +408,7 @@ def get_dashboard(request):
     except Exception as e:
         return Response({"error": f"Une erreur s'est produite : {str(e)}"}, status=500)
 
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def get_userr_itineraries(request):
-    """
-    Renvoie la liste des itinéraires générés par l'utilisateur connecté.
-    """
-    try:
-        user = request.user
-        # Récupérer tous les itinéraires pour l'utilisateur connecté
-        itineraries = Itinerary.objects.filter(user=user).order_by('-created_at')
-        
-        # Vérifie si itineraries est une liste d'objets et non un entier
-        if isinstance(itineraries, int):
-            return Response({"error": "Les itinéraires doivent être un ensemble d'objets, pas un entier"}, status=500)
 
-        # Sérialiser les résultats
-        serializer = ItinerarySerializer(itineraries, many=True)
-        return Response(serializer.data, status=200)
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
-    
 
 
 @api_view(['GET'])
@@ -440,24 +427,10 @@ def get_user_itineraries(request):
         return Response({"error": str(e)}, status=500)
 
 
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def get_itinerary_detail(request, itinerary_id):
-    """
-    Renvoie les détails d'un itinéraire spécifique pour l'utilisateur connecté, y compris les jours et activités.
-    """
-    try:
-        # Utiliser get_object_or_404 pour récupérer l'itinéraire ou renvoyer une 404 si non trouvé
-        itinerary = get_object_or_404(Itinerary, id=itinerary_id, user=request.user)
-        
-        # Sérialiser l'itinéraire avec ses jours et activités associés
-        serializer = ItinerarySerializer(itinerary)
-        return Response(serializer.data, status=200)
-    except Exception as e:
-        return Response({"error": f"Une erreur s'est produite : {str(e)}"}, status=500)
 
 
+
+    
 # views.py
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -565,3 +538,27 @@ def get_daily_itineraries(request):
 
     data = {day['day'].day: day['count'] for day in daily_itineraries}
     return Response(data)
+
+
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def get_itinerary_detail(request, itinerary_id):
+    try:
+        # Rechercher d'abord dans le feed pour les itinéraires partagés
+        shared_post = Post.objects.filter(itinerary_id=itinerary_id).first()
+        
+        if shared_post:
+            # Si l'itinéraire est partagé, n'importe quel utilisateur peut le voir
+            itinerary = Itinerary.objects.get(id=itinerary_id)
+        else:
+            # Sinon, vérifier que l'utilisateur est le propriétaire
+            itinerary = Itinerary.objects.get(id=itinerary_id, user=request.user)
+        
+        serializer = ItinerarySerializer(itinerary)
+        return Response(serializer.data, status=200)
+        
+    except Itinerary.DoesNotExist:
+        return JsonResponse({"error": "Itinéraire non trouvé"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

@@ -4,13 +4,14 @@ import { AuthService } from '../../services/auth.service';
 import { Post } from '../../models/post.interface';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-feed',
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   providers: [DatePipe]
 })
 export class FeedComponent implements OnInit, OnDestroy {
@@ -20,7 +21,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private userId!: number; // Utilisation de l'Assertion de Définition
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,private router: Router) {
     // Récupérer l'ID utilisateur via whoami
     this.authService.whoami().subscribe({
       next: (user) => {
@@ -69,7 +70,12 @@ export class FeedComponent implements OnInit, OnDestroy {
         }
       });
   }
-
+  // Dans feed.component.ts, modifiez la méthode openTripDetails:
+  openTripDetails(itineraryId: number | undefined): void {
+    if (itineraryId) {
+      this.router.navigate(['/feed-detail', itineraryId]); // Changez le chemin ici
+    }
+  }
   isLiked(post: Post): boolean {
     return !!this.userId && post.likes && Array.isArray(post.likes) && post.likes.includes(this.userId);
   }

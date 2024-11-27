@@ -23,12 +23,14 @@ export class SearchPageComponent {
   tripType: string = '';
   startDate: string = '';
   budget: number = 0;
+  age: number = 0;
   clientName: string = '';
   generatedText: string = '';
   formattedPlan: any;
   isOpen: boolean = true;
   isLoading: boolean = false;
   showResults: boolean = false;
+  comments: string = '';
   
   // Propriété pour suivre l'état d'expansion des jours
   expandedDays: boolean[] = [];
@@ -50,12 +52,13 @@ export class SearchPageComponent {
       trip_type: this.tripType,
       start_date: this.startDate,
       budget: this.budget,
-      client_name: this.clientName
+      client_name: this.clientName,
+      age: this.age,
+      comments: this.comments
     };
 
     this.authService.generatePrompt(requestData).subscribe({
       next: (response: GeneratePromptResponse) => {
-        console.log('Response:', response);
         this.generatedText = response.generated_text;
         try {
           this.formattedPlan = JSON.parse(this.generatedText);
