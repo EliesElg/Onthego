@@ -122,11 +122,13 @@ from rest_framework import serializers
 
 class GeneratePromptSerializer(serializers.Serializer):
     client_name = serializers.CharField(max_length=100)
-    ville = serializers.CharField(max_length=100)
-    days = serializers.IntegerField()
+    ville = serializers.CharField(max_length=100, required= True)
+    days = serializers.IntegerField(required= True)
     trip_type = serializers.CharField(max_length=50)
-    start_date = serializers.DateField()
-    budget = serializers.DecimalField(max_digits=10, decimal_places=2)
+    start_date = serializers.DateField(required= True)
+    budget = serializers.DecimalField(max_digits=10, decimal_places=2,required= True)
+    age = serializers.IntegerField()
+    comments = serializers.CharField(max_length=350, required=False, allow_null=True)
 
 
 from .models import Itinerary, Day, Activity

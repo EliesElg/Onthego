@@ -244,11 +244,19 @@ def generate_prompt(request):
             trip_type = request.data.get('trip_type')
             start_date = request.data.get('start_date')
             budget = request.data.get('budget')
+            age = request.data.get('age')
+            comments = request.data.get('comments')
+
+            if comments == None:
+                comments = ''
+            else:
+                comments = ", respecte strictement egalement ces demandes la pour le voyage" + comments
+
 
             # Préparer le prompt pour GPT
             content = f"""
-            Sur la base de ce format précis, générez un plan pour un séjour {trip_type} de {days} jours à {place} à partir du {start_date} avec un budget de {budget} euros.
-            La journée doit être conséquente avec des activités du matin au soir, et les activités doivent être géographiquement et météorologiquement cohérentes.
+            Sur la base de ce format précis, générez un plan pour un séjour {trip_type} de {days} jours à {place} à partir du {start_date} avec un budget de {budget} euros pour une personne de {age} ans.
+            La journée doit être conséquente avec des activités du matin au soir, adapté a son age et les activités doivent être géographiquement et météorologiquement cohérentes {comments}.
             Répondez uniquement avec un JSON structuré.
             """
 
