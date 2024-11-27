@@ -165,3 +165,21 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'user', 'itinerary', 'text', 'created_at', 'likes']
 
+class ShareItinerarySerializer(serializers.Serializer):
+    itinerary_id = serializers.IntegerField()  # ID de l'itinéraire
+    text = serializers.CharField(max_length=300, required=False, allow_blank=True)
+
+    def validate_itinerary_id(self, value):
+        """
+        Valider si l'itinéraire existe et appartient à l'utilisateur.
+        """
+        user = self.context['request'].user
+        if not Itinerary.objects.filter(id=value, user=user).exists():
+            raise serializers.ValidationError("L'itinéraire n'existe pas ou ne vous appartient pas.")
+        return value
+
+from rest_framework import serializers
+
+class DailyItinerarySerializer(serializers.Serializer):
+    day = serializers.DateField()  # Le jour (date précise)
+    count = serializers.IntegerField()  # Nombre d'itinéraires pour ce jour
