@@ -24,7 +24,7 @@ from .models import *
 from drf_yasg.utils import swagger_auto_schema
 from .tokens import CustomRefreshToken  # Remplacer l'import RefreshToken par celui-ci
 from django.contrib.auth import get_user_model
-from .permissions import IsPro  # Importer la permission personnalisée
+from .permissions import IsPro, IsParticulier  # Importer la permission personnalisée
 
 
 def parse_date(date_str):
@@ -38,7 +38,9 @@ def parse_date(date_str):
             continue
     raise ValueError(f"Format de date invalide : {date_str}")
 
-@swagger_auto_schema(method='post', request_body=LoginSerializer)
+@swagger_auto_schema(method='post', request_body=LoginSerializer, operation_summary="Authentification utilisateur",
+operation_description="Permet à un utilisateur de se connecter en fournissant un nom d'utilisateur et un mot de passe. Retourne un token JWT pour accéder aux autres endpoints sécurisés."
+)
 @api_view(['POST'])
 def login(request):
     serializer = LoginSerializer(data=request.data)
@@ -55,7 +57,9 @@ def login(request):
             return Response({"access_token": access_token, "user_id": user.id}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(method='post', request_body=UserSerializer)
+@swagger_auto_schema(method='post', request_body=UserSerializer,operation_summary="Inscription utilisateur",
+operation_description="Permet de créer un nouveau compte utilisateur. Retourne un token JWT et les informations de l'utilisateur créé."
+)
 @api_view(['POST'])
 def signup(request):
     serializer = UserSerializer(data=request.data)
@@ -72,7 +76,9 @@ def signup(request):
 
 
 
-@swagger_auto_schema(method='delete')
+@swagger_auto_schema(method='delete', operation_summary="Suppression d'un utilisateur",
+operation_description="Supprime un compte utilisateur. Un utilisateur connecté peut supprimer son propre compte, ou un administrateur peut supprimer un autre compte utilisateur en fournissant son ID."
+)
 @api_view(['DELETE'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -103,7 +109,8 @@ def deleteuser(request, user_id=None):
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+@swagger_auto_schema(method='get', operation_summary="Obtenir les informations utilisateur",
+operation_description="Retourne les informations de l'utilisateur actuellement connecté, telles que son ID, son nom d'utilisateur, et son rôle.")
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -119,7 +126,9 @@ def whoami(request):
 
 
 
-@swagger_auto_schema(method='put', request_body=PutUserSerializer)
+@swagger_auto_schema(method='put', request_body=PutUserSerializer, operation_summary="Mise à jour des informations utilisateur",
+operation_description="Permet à un utilisateur de mettre à jour ses informations personnelles comme son email ou son nom d'utilisateur. Les champs à modifier sont optionnels."
+)
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -165,7 +174,9 @@ def user_update(request):
 
 # Modification de mot de passe
 
-@swagger_auto_schema(method='put', request_body=ChangePasswordSerializer)
+@swagger_auto_schema(method='put', request_body=ChangePasswordSerializer, operation_summary="Modification du mot de passe",
+operation_description="Permet à un utilisateur connecté de modifier son mot de passe actuel. L'utilisateur doit fournir son mot de passe actuel et un nouveau mot de passe."
+)
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -223,7 +234,9 @@ def get_users(request):
 # Générer prompt GPT avec Swagger et utiliser le serializer pour le corps de la requête
 @swagger_auto_schema(
     method='post',
-    request_body=GeneratePromptSerializer,
+    request_body=GeneratePromptSerializer,operation_summary="Génération de plan de voyage",
+    operation_description="Génère un plan structuré en JSON pour un voyage basé sur les données fournies, telles que la ville, les dates, le type de voyage, et le budget.",
+
     responses={
         200: "Plan généré avec succès.",
         400: "Requête invalide.",
@@ -361,7 +374,10 @@ def generate_prompt(request):
         except Exception as e:
             print(f"Une erreur s'est produite : {str(e)}")
             return JsonResponse({"error": f"Une erreur s'est produite : {str(e)}"}, status=500)
-
+        
+@swagger_auto_schema(method='get', operation_summary="Statistiques des itinéraires générés",
+operation_description="Retourne des statistiques sur les itinéraires générés par l'utilisateur connecté, incluant le nombre total par mois et le total pour l'année en cours."
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated, IsPro])  # Ajouter la permission personnalisée ici
@@ -409,7 +425,9 @@ def get_dashboard(request):
 
 
 
-
+@swagger_auto_schema(method='get', operation_summary="Liste des itinéraires utilisateur",
+operation_description="Retourne une liste des itinéraires générés par l'utilisateur connecté, triés par date de création."
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -439,6 +457,8 @@ from .serializers import ChangePasswordSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+@swagger_auto_schema(method='get', operation_summary="Recupération du profil de l'user"
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -448,7 +468,8 @@ def get_user_profile(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 # views.py
-
+@swagger_auto_schema(method='put', operation_summary="Recupération du profil de l'user"
+)
 @api_view(['PUT'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -460,9 +481,15 @@ def update_user_profile(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
+@swagger_auto_schema(
+    method='post',
+    request_body=ShareItinerarySerializer,
+    operation_summary="Partager un itinéraire",
+    operation_description="Permet de partager un itinéraire existant de l'utilisateur sur le fil d'actualité. L'utilisateur doit fournir l'ID de l'itinéraire et un texte optionnel."
+)
+@api_view(['POST'],)
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsParticulier])
 def share_itinerary(request):
     """
     Endpoint to share an itinerary to the feed.
@@ -486,17 +513,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from .models import Post
 from .serializers import PostSerializer
+
+@swagger_auto_schema(
+    method='get',
+    operation_summary="Fil d'actualité des posts",
+    operation_description="Retourne une liste des itinéraires partagés par les utilisateurs, triés par ordre décroissant de leur date de création."
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsParticulier])
 def get_feed(request):
     posts = Post.objects.all().order_by('-created_at')
     serializer = PostSerializer(posts, many=True, context={'request': request})  # Ajouter le contexte
     return Response(serializer.data)
 
+@swagger_auto_schema(
+    method='post',
+    operation_summary="Aimer ou retirer un like sur un post",
+    operation_description="Permet à un utilisateur de liker ou d'annuler un like sur un post. Retourne les informations mises à jour du post."
+)
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication]) 
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsParticulier])
 def like_post(request):
     user = request.user
     post_id = request.data.get('post_id')
@@ -524,6 +562,12 @@ def like_post(request):
 from datetime import datetime, timedelta
 from django.db.models import Count
 
+@swagger_auto_schema(
+    method='get',
+    operation_summary="Itinéraires par jour pour le mois en cours",
+    operation_description="Retourne le nombre d'itinéraires créés pour chaque jour du mois en cours. Les données sont regroupées par jour."
+
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -538,7 +582,11 @@ def get_daily_itineraries(request):
     data = {day['day'].day: day['count'] for day in daily_itineraries}
     return Response(data)
 
-
+@swagger_auto_schema(
+    method='get',
+    operation_summary="Détails d'un itinéraire",
+    operation_description="Retourne les détails d'un itinéraire spécifique, incluant ses jours et ses activités. Accessible uniquement au propriétaire de l'itinéraire ou si l'itinéraire a été partagé publiquement."
+)
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
