@@ -13,6 +13,7 @@ import { TripDetailComponent } from './features/trip-detail/trip-detail.componen
 import { ProfilePageComponent } from './features/profile-page/profile-page.component';
 import { FeedComponent } from './features/feed/feed.component';
 import { FeedDetailComponent } from './features/feed-detail/feed-detail.component';
+import { PaymentComponent } from './features/payment/payment.component';
 export const routes: Routes = [
 
     { path: '', component: HomePageComponent,},
@@ -27,6 +28,8 @@ export const routes: Routes = [
     { path: 'profile', component: ProfilePageComponent, canActivate: [AuthGuard]},
     { path: 'feed', component: FeedComponent, canActivate: [AuthGuard] },
     { path: 'feed-detail/:id',component: FeedDetailComponent , canActivate: [AuthGuard] },
+    { path: 'payment', component: PaymentComponent, canActivate: [AuthGuard] },
+
     { path: '**', component: NotFoundComponent},
 
 ];

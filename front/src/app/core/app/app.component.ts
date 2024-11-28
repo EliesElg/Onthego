@@ -19,7 +19,6 @@ import { ReviewPageComponent } from '../../features/review-page/review-page.comp
 import { SingleReviewComponent } from '../../shared/single-review/single-review.component';
 import { CreateReviewComponent } from '../../shared/create-review/create-review.component';
 import { PostListComponent } from '../../shared/post-list/post-list.component';
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -41,9 +40,7 @@ import { PostListComponent } from '../../shared/post-list/post-list.component';
     ReviewPageComponent,
     SingleReviewComponent,
     CreateReviewComponent,
-    PostListComponent
-    
-  ],
+    PostListComponent  ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

@@ -1,0 +1,157 @@
+<!-- payment.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-sky-50 to-emerald-50">
+  <!-- Header Section -->
+  <div class="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div class="text-center space-y-4 mb-12">
+      <h1 class="text-4xl font-light text-gray-800">
+        Achetez des <span class="font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Tokens</span>
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Choisissez votre pack et commencez à générer des itinéraires de voyage personnalisés
+      </p>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+      <div *ngFor="let pkg of packages"
+           class="relative bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:scale-105"
+           [class.ring-2]="pkg.popular"
+           [class.ring-blue-500]="pkg.popular">
+        
+        <div *ngIf="pkg.popular" 
+             class="absolute top-0 right-0 bg-blue-500 text-white px-4 py-1 rounded-bl-lg text-sm font-medium">
+          Popular
+        </div>
+
+        <div class="p-8">
+          <h3 class="text-xl font-semibold text-gray-800">{{pkg.name}}</h3>
+          <div class="mt-4 flex items-baseline">
+            <span class="text-4xl font-bold text-gray-900">{{pkg.price}}€</span>
+          </div>
+          <p class="mt-2 text-lg text-blue-600 font-medium">
+            {{pkg.tokens}} tokens
+          </p>
+          <p class="mt-2 text-gray-500">{{pkg.description}}</p>
+
+          <ul class="mt-6 space-y-4">
+            <li *ngFor="let feature of pkg.features" class="flex items-start">
+              <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              {{feature}}
+            </li>
+          </ul>
+
+          <button (click)="selectPackage(pkg)"
+                  class="mt-8 w-full px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg
+                         hover:opacity-90 transition-all duration-200">
+            Choisir ce pack
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Section -->
+    <!-- Payment Form Section -->
+    <div *ngIf="selectedPackage" class="min-h-screen flex items-center justify-center">
+      <div class="w-full max-w-2xl p-8 rounded-2xl bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+        <!-- Header -->
+        <div class="text-center space-y-2 mb-8">
+          <h1 class="text-4xl font-light text-gray-800">
+            Paiement <span class="font-medium bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Sécurisé</span>
+          </h1>
+          <p class="text-sm text-gray-500">Finalisez votre achat de tokens</p>
+        </div>
+    
+        <!-- Order Summary -->
+        <div class="mb-8 p-6 rounded-xl bg-blue-50 border border-blue-100">
+          <h2 class="text-lg font-medium text-gray-800 mb-4">Résumé de la commande</h2>
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-gray-700 font-medium">{{selectedPackage.name}}</p>
+              <p class="text-sm text-gray-500">{{selectedPackage.tokens}} tokens</p>
+            </div>
+            <p class="text-2xl font-bold text-blue-600">{{selectedPackage.price}}€</p>
+          </div>
+        </div>
+    
+        <!-- Payment Form -->
+        <form class="space-y-6">
+          <!-- Personal Info -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+              <input type="text" 
+                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+              <input type="text" 
+                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+            </div>
+          </div>
+    
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <input type="email" 
+                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+          </div>
+    
+          <!-- Card Info -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-medium text-gray-900">Informations de paiement</h3>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de carte</label>
+              <input type="text" placeholder="1234 5678 9012 3456"
+                     class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+            </div>
+    
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date d'expiration</label>
+                <input type="text" placeholder="MM/AA"
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">CVC</label>
+                <input type="text" placeholder="123"
+                       class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+              </div>
+            </div>
+          </div>
+    
+          <!-- Submit Button -->
+          <button type="submit"
+                  class="w-full py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl
+                         hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                         transition-all duration-200 flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            Payer {{selectedPackage.price}}€
+          </button>
+    
+          <!-- Security Badges -->
+          <div class="flex items-center justify-center space-x-6 pt-4">
+            <div class="flex items-center text-gray-500">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <span class="text-sm">Paiement sécurisé</span>
+            </div>
+            <div class="flex items-center text-gray-500">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              <span class="text-sm">SSL Encryption</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
