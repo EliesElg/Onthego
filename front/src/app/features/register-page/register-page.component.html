@@ -120,6 +120,9 @@
       <div *ngIf="RegisterSuccess" class="text-sm text-center text-green-600">
         Inscription réussie ! Redirection...
       </div>
+      <div *ngIf="errorMessage" class="text-sm text-center text-red-600">
+        {{ errorMessage }}
+      </div>
 
       <!-- Bouton d'inscription -->
       <button

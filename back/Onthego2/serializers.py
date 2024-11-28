@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from .models import Post
 from rest_framework import serializers
 from .models import Itinerary
+import re
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
@@ -16,9 +17,16 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value):
-        if value:
-            validate_password(value)
+        # Vérifie que le mot de passe contient au moins 8 caractères et un chiffre
+        if len(value) < 8:
+            raise serializers.ValidationError("Le mot de passe doit comporter au moins 8 caractères.")
+
+        if not re.search(r'\d', value):  # Vérifie qu'il y a au moins un chiffre
+            raise serializers.ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+
         return value
+
+
 #test
     def create(self, validated_data):
         # Extraire le champ `role` des données validées
@@ -173,8 +181,3 @@ class ShareItinerarySerializer(serializers.Serializer):
             raise serializers.ValidationError("L'itinéraire n'existe pas ou ne vous appartient pas.")
         return value
 
-from rest_framework import serializers
-
-class DailyItinerarySerializer(serializers.Serializer):
-    day = serializers.DateField()  # Le jour (date précise)
-    count = serializers.IntegerField()  # Nombre d'itinéraires pour ce jour
