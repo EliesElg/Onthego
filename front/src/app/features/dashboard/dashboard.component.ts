@@ -1,12 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { Color, ScaleType } from '@swimlane/ngx-charts';
 
 interface ItineraryStatsResponse {
-  itineraries_by_month: { [key: number]: number };
+  itineraries_by_month: { [key: string]: number };
   total_itineraries_year: number;
   current_month_itineraries: number;
   unique_clients: number;
@@ -15,13 +15,11 @@ interface ItineraryStatsResponse {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgxChartsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  @ViewChild('monthChart') monthChart!: ElementRef<HTMLCanvasElement>;
-  
   stats: ItineraryStatsResponse | null = null;
   isLoading: boolean = false;
   error: string | null = null;
@@ -29,9 +27,15 @@ export class DashboardComponent implements OnInit {
     'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
   ];
-  selectedMonth: number | null = null;
-  chart: Chart | null = null;
-
+  
+  chartData: any[] = [];
+  colorScheme: Color = {
+    name: 'custom',
+    selectable: true,
+    group: ScaleType.Ordinal,
+    domain: ['#2563eb', '#0891b2', '#38bdf8', '#7dd3fc'] // Dégradés bleu/cyan
+  };
+  
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
@@ -44,8 +48,9 @@ export class DashboardComponent implements OnInit {
     
     this.authService.getUserItinerariesStats().subscribe({
       next: (response: ItineraryStatsResponse) => {
-        console.log('Données reçues:', response); // Log des données reçues
+        console.log('Données reçues:', response);
         this.stats = response;
+        this.prepareChartData();
         this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
@@ -54,6 +59,20 @@ export class DashboardComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  prepareChartData(): void {
+    if (!this.stats || !this.stats.itineraries_by_month) {
+      this.chartData = [];
+      return;
+    }
+
+    this.chartData = Object.entries(this.stats.itineraries_by_month)
+      .map(([month, count]) => ({
+        name: this.months[parseInt(month) - 1],
+        value: count || 0
+      }))
+      .sort((a, b) => this.months.indexOf(a.name) - this.months.indexOf(b.name));
   }
 
   getMonths(): number[] {
@@ -71,52 +90,5 @@ export class DashboardComponent implements OnInit {
 
   formatNumber(num: number): string {
     return num.toLocaleString('fr-FR');
-  }
-
-  showChartForMonth(month: number): void {
-    if (!this.stats) {
-      console.error('Statistiques non chargées');
-      return;
-    }
-
-    this.selectedMonth = month;
-
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
-    const ctx = this.monthChart.nativeElement.getContext('2d');
-    if (!ctx) {
-      console.error('Contexte Canvas non disponible');
-      return;
-    }
-
-    console.log('Contexte Canvas disponible'); // Log pour vérifier le contexte
-
-    this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Itinéraires'],
-        datasets: [{
-          label: `Itinéraires pour ${this.getMonthName(month)}`,
-          data: [this.stats.itineraries_by_month[month] || 0],
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1
-            }
-          }
-        }
-      }
-    });
   }
 }

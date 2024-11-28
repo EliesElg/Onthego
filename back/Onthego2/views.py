@@ -257,7 +257,7 @@ def generate_prompt(request):
             start_date = request.data.get('start_date')
             budget = request.data.get('budget')
             age = request.data.get('age')
-            comments = request.data.get('comments')
+            comments = request.data.get('comments') 
 
             if comments == None:
                 comments = ''
